@@ -16,6 +16,10 @@ let equalBtn = document.getElementById("equal");
 let decBtn = document.getElementById("dec");
 let textLine = document.getElementById("text-line");
 let clearBtn = document.getElementById("clear");
+let x;
+let y;
+let result;
+let operatorExists = false;
 
 
 oneBtn.addEventListener('click', () => {updateTextLine('1');});
@@ -28,23 +32,58 @@ sevenBtn.addEventListener('click', () => {updateTextLine('7');});
 eightBtn.addEventListener('click', () => {updateTextLine('8');});
 nineBtn.addEventListener('click', () => {updateTextLine('9');});
 zeroBtn.addEventListener('click', () => {updateTextLine('0');});
-addBtn.addEventListener('click', () => {updateTextLine('+');});
+addBtn.addEventListener('click', () => { 
+    checkOperator('add');
+    if(!operatorExists){
+        operator = 'add';
+        operatorExists = true; 
+        updateTextLine('+');
+    }
+});
 subBtn.addEventListener('click', () => {updateTextLine('-');});
 divBtn.addEventListener('click', () => {updateTextLine('÷');});
 multBtn.addEventListener('click', () => {updateTextLine('x');});
-equalBtn.addEventListener('click', () => {updateTextLine('=');});
+equalBtn.addEventListener('click', () => {evaluateExpression(operator);});
 decBtn.addEventListener('click', () => {updateTextLine('.');});
 clearBtn.addEventListener('click', () => {updateTextLine('clear');});
 
+//checks if there is already an operator 
+//(can't have multiple operations simultaneously)
+//evaluates expression if there is already an operator (identical to pressing '=')
+//if there isn't, stores first half of textLine ( first operand) into x
+function checkOperator(operator){
+    if(operatorExists){
+        evaluateExpression(operator);
+    }
+    else{
+        x = textLine.textContent;  
+    }
+}
 
+//run whenever '=' is pressed
+function evaluateExpression(operator){
+    
+
+    if(operator === 'add'){
+
+        let index = textLine.textContent.indexOf('+');
+        y = textLine.textContent.slice(index+1);
+        addNums();
+        updateTextLine('=');
+    }
+}
+
+function addNums(){
+    result = Number(x) + Number(y);
+}
 
 function updateTextLine(input){
-    textLine.style.padding = "10px;";
-    textLine.style.borderRadius = "5px";
-    textLine.style.width = "350px";
-    textLine.style.w
+
     if(input === 'clear'){
         textLine.textContent = '';
+    }
+    else if(input === '='){
+        textLine.textContent = result;
     }
     else{
         textLine.textContent += input;
