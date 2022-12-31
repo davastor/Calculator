@@ -19,6 +19,7 @@ let clearBtn = document.getElementById("clear");
 let x;
 let y;
 let result;
+let operator;
 let operatorExists = false;
 
 
@@ -32,55 +33,121 @@ sevenBtn.addEventListener('click', () => {updateTextLine('7');});
 eightBtn.addEventListener('click', () => {updateTextLine('8');});
 nineBtn.addEventListener('click', () => {updateTextLine('9');});
 zeroBtn.addEventListener('click', () => {updateTextLine('0');});
-addBtn.addEventListener('click', () => { 
-    checkOperator('add');
-    if(!operatorExists){
-        operator = 'add';
-        operatorExists = true; 
-        updateTextLine('+');
+addBtn.addEventListener('click', () => {checkOperator('add');});
+subBtn.addEventListener('click', () => {checkOperator('sub');});
+divBtn.addEventListener('click', () => {checkOperator('div');});
+multBtn.addEventListener('click', () => {checkOperator('mult');});
+equalBtn.addEventListener('click', () => {evaluateExpression(operator);});
+decBtn.addEventListener('click', () => {
+    if(!textLine.textContent.includes('.')){
+        updateTextLine('.');
     }
 });
-subBtn.addEventListener('click', () => {updateTextLine('-');});
-divBtn.addEventListener('click', () => {updateTextLine('÷');});
-multBtn.addEventListener('click', () => {updateTextLine('x');});
-equalBtn.addEventListener('click', () => {evaluateExpression(operator);});
-decBtn.addEventListener('click', () => {updateTextLine('.');});
 clearBtn.addEventListener('click', () => {updateTextLine('clear');});
 
 //checks if there is already an operator 
 //(can't have multiple operations simultaneously)
 //evaluates expression if there is already an operator (identical to pressing '=')
 //if there isn't, stores first half of textLine ( first operand) into x
-function checkOperator(operator){
+//if operator DOES exist in textLine, set Y (second operand), and evaluate expression
+function checkOperator(op){
     if(operatorExists){
+        setY();
         evaluateExpression(operator);
+        return;
+    }
+
+    x = textLine.textContent;  
+    operator = op;
+    operatorExists = true; 
+
+    if(operator === 'add'){
+        updateTextLine('+');
+    }
+    else if(operator === 'sub'){
+        updateTextLine('-');
+    }
+    else if(operator === 'div'){
+        updateTextLine('÷');
     }
     else{
-        x = textLine.textContent;  
+        updateTextLine('x');
     }
+}
+
+function setY(){
+    let searchValue;
+    
+    if(operator === 'add'){
+        searchValue = '+';
+    }
+    else if(operator === 'sub'){
+        searchValue = '-';
+    }
+    else if(operator === 'div'){
+        searchValue = '÷';
+    }
+    else{
+        searchValue = 'x';
+
+    }
+    let index = textLine.textContent.indexOf(searchValue);
+    y = textLine.textContent.slice(index+1);
 }
 
 //run whenever '=' is pressed
 function evaluateExpression(operator){
-    
+    if(operatorExists){
+        setY();
+    }
 
     if(operator === 'add'){
-
-        let index = textLine.textContent.indexOf('+');
-        y = textLine.textContent.slice(index+1);
         addNums();
-        updateTextLine('=');
     }
+    else if(operator === 'sub'){
+        subNums();
+    }
+    else if(operator === 'div'){
+        divNums();
+    }
+    else{
+        console.log(x);
+        console.log(y);
+        multNums();
+    }
+
+    updateTextLine('=');
+    operatorExists = false;
 }
 
 function addNums(){
     result = Number(x) + Number(y);
+    x = result;
+}
+
+
+function subNums(){
+    result = Number(x) - Number(y);
+    x = result;
+}
+
+function divNums(){
+    result = Number(x) / Number(y);
+    x = result;
+}
+
+function multNums(){
+    result = Number(x) * Number(y);
+    x = result;
 }
 
 function updateTextLine(input){
-
     if(input === 'clear'){
         textLine.textContent = '';
+        operatorExists = false; 
+        operator = '';
+        x = 0;
+        y = 0;
     }
     else if(input === '='){
         textLine.textContent = result;
@@ -88,5 +155,4 @@ function updateTextLine(input){
     else{
         textLine.textContent += input;
     }
-
 }
