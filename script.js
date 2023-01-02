@@ -16,11 +16,13 @@ let equalBtn = document.getElementById("equal");
 let decBtn = document.getElementById("dec");
 let textLine = document.getElementById("text-line");
 let clearBtn = document.getElementById("clear");
-let x;
-let y;
+let x = undefined;
+let y = undefined;
 let result;
 let operator;
-let operatorExists = false;
+let prevOperationExists;
+let prevY;
+
 
 
 oneBtn.addEventListener('click', () => {updateTextLine('1');});
@@ -37,7 +39,7 @@ addBtn.addEventListener('click', () => {checkOperator('add');});
 subBtn.addEventListener('click', () => {checkOperator('sub');});
 divBtn.addEventListener('click', () => {checkOperator('div');});
 multBtn.addEventListener('click', () => {checkOperator('mult');});
-equalBtn.addEventListener('click', () => {evaluateExpression(operator);});
+equalBtn.addEventListener('click', () => { evaluateExpression();});
 decBtn.addEventListener('click', () => {
     if(!textLine.textContent.includes('.')){
         updateTextLine('.');
@@ -45,37 +47,49 @@ decBtn.addEventListener('click', () => {
 });
 clearBtn.addEventListener('click', () => {updateTextLine('clear');});
 
+
+
 //checks if there is already an operator 
 //(can't have multiple operations simultaneously)
 //evaluates expression if there is already an operator (identical to pressing '=')
-//if there isn't, stores first half of textLine ( first operand) into x
+//stores first half of textLine (first operand) into x
 //if operator DOES exist in textLine, set Y (second operand), and evaluate expression
 function checkOperator(op){
-    if(operatorExists){
-        setY();
-        evaluateExpression(operator);
+
+    if(!textLine.textContent.includes('+')&&
+    !textLine.textContent.includes('-')&&
+    !textLine.textContent.includes('x')&&
+    !textLine.textContent.includes('÷') && 
+    textLine.textContent.length !== 0){
+        //console.log(textLine.textContent);
+        operator = op;
+
+        if(operator === 'add'){
+            updateTextLine('+');
+        }
+        else if(operator === 'sub'){
+            updateTextLine('-');
+        }
+        else if(operator === 'div'){
+            updateTextLine('÷');
+        }
+        else{
+            updateTextLine('x');
+        }
+    }
+    else if(x === undefined || y === undefined){ 
+
         return;
-    }
 
-    x = textLine.textContent;  
-    operator = op;
-    operatorExists = true; 
-
-    if(operator === 'add'){
-        updateTextLine('+');
-    }
-    else if(operator === 'sub'){
-        updateTextLine('-');
-    }
-    else if(operator === 'div'){
-        updateTextLine('÷');
     }
     else{
-        updateTextLine('x');
+        evaluateExpression();
     }
+
 }
 
-function setY(){
+function setXandY(){
+    
     let searchValue;
     
     if(operator === 'add'){
@@ -89,16 +103,29 @@ function setY(){
     }
     else{
         searchValue = 'x';
-
     }
+
     let index = textLine.textContent.indexOf(searchValue);
-    y = textLine.textContent.slice(index+1);
+
+    if(index != -1){
+        x = textLine.textContent.slice(0, index);
+        y = textLine.textContent.slice(index+1);
+    }
+    else{
+        x = result;
+        y = undefined;
+    }
+
+
 }
 
 //run whenever '=' is pressed
-function evaluateExpression(operator){
-    if(operatorExists){
-        setY();
+function evaluateExpression(){
+ 
+   
+    setXandY();
+    if(textLine.textContent.length === 0 || y === undefined){
+        return;
     }
 
     if(operator === 'add'){
@@ -111,13 +138,12 @@ function evaluateExpression(operator){
         divNums();
     }
     else{
-        console.log(x);
-        console.log(y);
         multNums();
     }
 
     updateTextLine('=');
-    operatorExists = false;
+    y = 0;
+ 
 }
 
 function addNums(){
@@ -125,15 +151,20 @@ function addNums(){
     x = result;
 }
 
-
 function subNums(){
     result = Number(x) - Number(y);
     x = result;
 }
 
 function divNums(){
-    result = Number(x) / Number(y);
-    x = result;
+    if (Number(y) === 0){
+        result = 'Cannot divide by zero.';
+    }
+    else{
+        result = Number(x) / Number(y);
+        x = result;
+    }
+
 }
 
 function multNums(){
@@ -144,10 +175,10 @@ function multNums(){
 function updateTextLine(input){
     if(input === 'clear'){
         textLine.textContent = '';
-        operatorExists = false; 
         operator = '';
-        x = 0;
-        y = 0;
+        x = undefined;
+        y = undefined;
+        result = undefined;
     }
     else if(input === '='){
         textLine.textContent = result;
