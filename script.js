@@ -20,6 +20,7 @@ let x = undefined;
 let y = undefined;
 let result;
 let operator;
+let operatorExists;
 let prevOperationExists;
 let prevY;
 
@@ -56,14 +57,9 @@ clearBtn.addEventListener('click', () => {updateTextLine('clear');});
 //if operator DOES exist in textLine, set Y (second operand), and evaluate expression
 function checkOperator(op){
 
-    if(!textLine.textContent.includes('+')&&
-    !textLine.textContent.includes('-')&&
-    !textLine.textContent.includes('x')&&
-    !textLine.textContent.includes('÷') && 
-    textLine.textContent.length !== 0){
-        //console.log(textLine.textContent);
+    if(!operatorExists && textLine.textContent.length !== 0){
         operator = op;
-
+        operatorExists = true;
         if(operator === 'add'){
             updateTextLine('+');
         }
@@ -76,6 +72,8 @@ function checkOperator(op){
         else{
             updateTextLine('x');
         }
+
+
     }
     else if(x === undefined || y === undefined){ 
 
@@ -91,12 +89,10 @@ function checkOperator(op){
 function setXandY(){
     
     let searchValue;
+    let index;
     
     if(operator === 'add'){
         searchValue = '+';
-    }
-    else if(operator === 'sub'){
-        searchValue = '-';
     }
     else if(operator === 'div'){
         searchValue = '÷';
@@ -105,7 +101,25 @@ function setXandY(){
         searchValue = 'x';
     }
 
-    let index = textLine.textContent.indexOf(searchValue);
+    if(operator === 'sub'){
+        searchValue = '-';
+        if(y !== undefined || x < 0){
+            let firstPos = textLine.textContent.indexOf(searchValue);
+            console.log(firstPos);
+            index = textLine.textContent.indexOf(searchValue, firstPos+1);
+            console.log(index);
+        }
+        else{
+            index = textLine.textContent.indexOf(searchValue);
+        }
+
+
+    }
+    else{
+        index = textLine.textContent.indexOf(searchValue);
+    }
+
+
 
     if(index != -1){
         x = textLine.textContent.slice(0, index);
@@ -115,7 +129,6 @@ function setXandY(){
         x = result;
         y = undefined;
     }
-
 
 }
 
@@ -142,7 +155,7 @@ function evaluateExpression(){
     }
 
     updateTextLine('=');
-    y = 0;
+    operatorExists = false;
  
 }
 
@@ -176,6 +189,7 @@ function updateTextLine(input){
     if(input === 'clear'){
         textLine.textContent = '';
         operator = '';
+        operatorExists = false;
         x = undefined;
         y = undefined;
         result = undefined;
